@@ -1,112 +1,50 @@
-\# 🏎️ STREET RACING
+# 🏎️ STREET RACING
 
+### Project UTS Game - Unity 3D
 
+## 👨‍💻 Identitas Pengembang
 
-\## Project UTS Game - Unity 3D
+* **Nama:** Marcell Mardiana Putra
+* **NIM:** 23090009
+* **Program Studi:** D4 Teknik Informatika
 
+---
 
+# 🎮 Deskripsi Singkat
 
-\---
+Project game **"STREET RACING"** ini dikembangkan menggunakan **Unity Engine** sebagai pemenuhan tugas **Ujian Tengah Semester (UTS)**.
 
+Street Racing merupakan game racing 3D bertema **modern street racing** yang menantang pemain untuk mengendarai mobil sport dan mencapai garis finish secepat mungkin di lintasan perkotaan modern.
 
+---
 
-\# 👨‍💻 Identitas Pengembang
+# 📦 Asset Pendukung (Third-Party Assets)
 
+Untuk mendukung proses pengembangan game dan perancangan environment, project ini menggunakan beberapa asset eksternal.
 
+Berikut daftar credit asset yang digunakan dalam project ini:
 
-| Keterangan    | Detail                 |
+## 🚗 Asset Player (Kendaraan)
 
-| ------------- | ---------------------- |
+### Sport Car Free 5
 
-| Nama          | Marcell Mardiana Putra |
+* **Author:** ALIyerEdon
 
-| NIM           | 23090009               |
+---
 
-| Program Studi | D4 Teknik Informatika  |
+## 🏙️ Asset Lingkungan (Environment & Map)
 
+### Low Poly Road Pack
 
+* **Author:** Broken Vector
 
-\---
+---
 
-
-
-\# 📖 Deskripsi
-
-
-
-Project game \*\*"STREET RACING"\*\* ini dikembangkan menggunakan \*\*Unity Engine\*\* sebagai pemenuhan tugas \*\*Ujian Tengah Semester (UTS)\*\*.
-
-
-
-Street Racing adalah game racing 3D bertema \*\*modern street racing\*\* yang menantang pemain untuk mengendarai mobil sport dan mencapai garis finish secepat mungkin di lintasan perkotaan modern.
-
-
-
-\---
-
-
-
-\# 🎮 Credit Asset
-
-
-
-Berikut adalah daftar credit asset eksternal yang digunakan dalam perancangan environment dan player pada project ini.
-
-
-
-\## 🚗 Asset Player (Kendaraan)
-
-
-
-\### Sport Car Free 5
-
-
-
-\* Author : ALIyerEdon
-
-
-
-\---
-
-
-
-\## 🏙️ Asset Lingkungan (Environment \& Map)
-
-
-
-\### Low Poly Road Pack
-
-
-
-\* Author : Broken Vector
-
-
-
-\---
-
-
-
-\# ▶️ Cara Menjalankan Project
-
-
+# ▶️ Cara Menjalankan Project
 
 Clone repository berikut:
 
-
-
-```bash id="ow2nfa"
-
-git clone https://github.com/marcellputra/Street\_Racing.git
-
+```bash
+git clone https://github.com/marcellputra/Street_Racing.git
 ```
-
-
-
-Lalu buka project menggunakan \*\*Unity Hub\*\* dan jalankan scene utama pada Unity Editor.
-
-
-
-\---
-
-
 
