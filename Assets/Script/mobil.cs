@@ -6,6 +6,9 @@ public class mobil : MonoBehaviour
     private float currentSteerAngle, currentBrakeForce;
     private bool isBraking;
 
+    // Joystick Android
+    public FixedJoystick joystick;
+
     // Settings
     [SerializeField] private float motorForce = 1500f;
     [SerializeField] private float brakeForce = 3000f;
@@ -33,13 +36,34 @@ public class mobil : MonoBehaviour
 
     private void GetInput()
     {
-        // Steering
-        horizontalInput = Input.GetAxis("Horizontal");
+        // Input Keyboard
+        float keyboardH = Input.GetAxis("Horizontal");
+        float keyboardV = Input.GetAxis("Vertical");
 
-        // Gas / Reverse
-        verticalInput = Input.GetAxis("Vertical");
+        // Input Joystick
+        float joystickH = 0f;
+        float joystickV = 0f;
 
-        // Brake
+        if (joystick != null)
+        {
+            joystickH = joystick.Horizontal;
+            joystickV = joystick.Vertical;
+        }
+
+        // Gabungkan Keyboard + Joystick
+        horizontalInput = Mathf.Clamp(
+            keyboardH + joystickH,
+            -1f,
+            1f
+        );
+
+        verticalInput = Mathf.Clamp(
+            keyboardV + joystickV,
+            -1f,
+            1f
+        );
+
+        // Rem (untuk PC)
         isBraking = Input.GetKey(KeyCode.Space);
     }
 
@@ -47,7 +71,6 @@ public class mobil : MonoBehaviour
     {
         if (isBraking)
         {
-            // Matikan tenaga mesin saat rem
             rearLeftWheelCollider.motorTorque = 0f;
             rearRightWheelCollider.motorTorque = 0f;
 
@@ -55,9 +78,11 @@ public class mobil : MonoBehaviour
         }
         else
         {
-            // RWD = roda belakang penggerak
-            rearLeftWheelCollider.motorTorque = verticalInput * motorForce;
-            rearRightWheelCollider.motorTorque = verticalInput * motorForce;
+            rearLeftWheelCollider.motorTorque =
+                verticalInput * motorForce;
+
+            rearRightWheelCollider.motorTorque =
+                verticalInput * motorForce;
 
             currentBrakeForce = 0f;
         }
@@ -77,20 +102,42 @@ public class mobil : MonoBehaviour
     {
         currentSteerAngle = maxSteerAngle * horizontalInput;
 
-        // Steering hanya roda depan
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
     }
 
     private void UpdateWheels()
     {
-        UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform, true);
-        UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform, false);
-        UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform, true);
-        UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform, false);
+        UpdateSingleWheel(
+            frontLeftWheelCollider,
+            frontLeftWheelTransform,
+            true
+        );
+
+        UpdateSingleWheel(
+            frontRightWheelCollider,
+            frontRightWheelTransform,
+            false
+        );
+
+        UpdateSingleWheel(
+            rearLeftWheelCollider,
+            rearLeftWheelTransform,
+            true
+        );
+
+        UpdateSingleWheel(
+            rearRightWheelCollider,
+            rearRightWheelTransform,
+            false
+        );
     }
 
-    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform, bool isLeftWheel)
+    private void UpdateSingleWheel(
+        WheelCollider wheelCollider,
+        Transform wheelTransform,
+        bool isLeftWheel
+    )
     {
         Vector3 pos;
         Quaternion rot;
@@ -99,10 +146,10 @@ public class mobil : MonoBehaviour
 
         wheelTransform.position = pos;
 
-        // Membalik rotasi roda kiri agar normal
         if (isLeftWheel)
         {
-            wheelTransform.rotation = rot * Quaternion.Euler(0, 180, 0);
+            wheelTransform.rotation =
+                rot * Quaternion.Euler(0, 180, 0);
         }
         else
         {
