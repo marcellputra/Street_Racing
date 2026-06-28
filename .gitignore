@@ -16,3 +16,6 @@ UserSettings/
 *.tmp
 *.user
 *.userprefs
+
+# Unity Recovery
+Assets/_Recovery/
