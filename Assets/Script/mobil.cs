@@ -2,12 +2,26 @@ using UnityEngine;
 
 public class mobil : MonoBehaviour
 {
-    private float horizontalInput, verticalInput;
-    private float currentSteerAngle, currentBrakeForce;
-    private bool isBraking;
+    private float horizontalInput;
+    private float verticalInput;
+    private float currentSteerAngle;
+    private float currentBrakeForce;
 
-    // Joystick Android
+    // Android Button
+    private bool gasPressed = false;
+    private bool brakePressed = false;
+
+    // Rigidbody
+    private Rigidbody rb;
+
+    // Joystick
     public FixedJoystick joystick;
+
+    // Timer
+    public Timer timer;
+
+    // Engine Sound
+    public EngineSound engineSound;
 
     // Settings
     [SerializeField] private float motorForce = 1500f;
@@ -20,11 +34,16 @@ public class mobil : MonoBehaviour
     [SerializeField] private WheelCollider rearLeftWheelCollider;
     [SerializeField] private WheelCollider rearRightWheelCollider;
 
-    // Wheel Transforms
+    // Wheel Mesh
     [SerializeField] private Transform frontLeftWheelTransform;
     [SerializeField] private Transform frontRightWheelTransform;
     [SerializeField] private Transform rearLeftWheelTransform;
     [SerializeField] private Transform rearRightWheelTransform;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     private void FixedUpdate()
     {
@@ -36,55 +55,108 @@ public class mobil : MonoBehaviour
 
     private void GetInput()
     {
-        // Input Keyboard
         float keyboardH = Input.GetAxis("Horizontal");
-        float keyboardV = Input.GetAxis("Vertical");
+        horizontalInput = keyboardH;
 
-        // Input Joystick
-        float joystickH = 0f;
-        float joystickV = 0f;
+        verticalInput = 0f;
 
-        if (joystick != null)
+        bool acceleratingNow = false;
+
+        // =========================
+        // Keyboard W = Maju
+        // =========================
+        if (Input.GetKey(KeyCode.W))
         {
-            joystickH = joystick.Horizontal;
-            joystickV = joystick.Vertical;
+            verticalInput = 1f;
+            acceleratingNow = true;
+
+            if (timer != null)
+                timer.StartTimer();
+
+            if (engineSound != null)
+                engineSound.StartEngine();
         }
 
-        // Gabungkan Keyboard + Joystick
-        horizontalInput = Mathf.Clamp(
-            keyboardH + joystickH,
-            -1f,
-            1f
-        );
+        // =========================
+        // Keyboard S = Mundur
+        // =========================
+        if (Input.GetKey(KeyCode.S))
+        {
+            verticalInput = -1f;
+        }
 
-        verticalInput = Mathf.Clamp(
-            keyboardV + joystickV,
-            -1f,
-            1f
-        );
+        // =========================
+        // Joystick Steering
+        // =========================
+        if (joystick != null)
+        {
+            horizontalInput += joystick.Horizontal;
+        }
 
-        // Rem (untuk PC)
-        isBraking = Input.GetKey(KeyCode.Space);
+        horizontalInput = Mathf.Clamp(horizontalInput, -1f, 1f);
+
+        // =========================
+        // Android Gas
+        // =========================
+        if (gasPressed)
+        {
+            verticalInput = 1f;
+            acceleratingNow = true;
+
+            if (timer != null)
+                timer.StartTimer();
+
+            if (engineSound != null)
+                engineSound.StartEngine();
+        }
+
+        // kasih tahu engine apakah sedang digas atau tidak
+        if (engineSound != null)
+            engineSound.SetAccelerating(acceleratingNow);
     }
 
     private void HandleMotor()
     {
-        if (isBraking)
+        // ==========================
+        // Android REM
+        // ==========================
+        if (brakePressed)
+        {
+            float forwardSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
+
+            // Kalau mobil masih maju -> rem
+            if (forwardSpeed > 0.2f)
+            {
+                rearLeftWheelCollider.motorTorque = 0f;
+                rearRightWheelCollider.motorTorque = 0f;
+                currentBrakeForce = brakeForce;
+            }
+            else
+            {
+                // Kalau hampir berhenti -> mundur
+                currentBrakeForce = 0f;
+                rearLeftWheelCollider.motorTorque = -motorForce;
+                rearRightWheelCollider.motorTorque = -motorForce;
+            }
+        }
+        // ==========================
+        // Keyboard Space = REM
+        // ==========================
+        else if (Input.GetKey(KeyCode.Space))
         {
             rearLeftWheelCollider.motorTorque = 0f;
             rearRightWheelCollider.motorTorque = 0f;
-
             currentBrakeForce = brakeForce;
         }
+        // ==========================
+        // Jalan Normal
+        // ==========================
         else
         {
-            rearLeftWheelCollider.motorTorque =
-                verticalInput * motorForce;
-
-            rearRightWheelCollider.motorTorque =
-                verticalInput * motorForce;
-
             currentBrakeForce = 0f;
+
+            rearLeftWheelCollider.motorTorque = verticalInput * motorForce;
+            rearRightWheelCollider.motorTorque = verticalInput * motorForce;
         }
 
         ApplyBraking();
@@ -108,52 +180,72 @@ public class mobil : MonoBehaviour
 
     private void UpdateWheels()
     {
-        UpdateSingleWheel(
-            frontLeftWheelCollider,
-            frontLeftWheelTransform,
-            true
-        );
-
-        UpdateSingleWheel(
-            frontRightWheelCollider,
-            frontRightWheelTransform,
-            false
-        );
-
-        UpdateSingleWheel(
-            rearLeftWheelCollider,
-            rearLeftWheelTransform,
-            true
-        );
-
-        UpdateSingleWheel(
-            rearRightWheelCollider,
-            rearRightWheelTransform,
-            false
-        );
+        UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform, true);
+        UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform, false);
+        UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform, true);
+        UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform, false);
     }
 
     private void UpdateSingleWheel(
         WheelCollider wheelCollider,
         Transform wheelTransform,
-        bool isLeftWheel
-    )
+        bool isLeftWheel)
     {
         Vector3 pos;
         Quaternion rot;
 
         wheelCollider.GetWorldPose(out pos, out rot);
-
         wheelTransform.position = pos;
 
         if (isLeftWheel)
-        {
-            wheelTransform.rotation =
-                rot * Quaternion.Euler(0, 180, 0);
-        }
+            wheelTransform.rotation = rot * Quaternion.Euler(0, 180, 0);
         else
-        {
             wheelTransform.rotation = rot;
+    }
+
+    // =============================
+    // Android Button
+    // =============================
+    public void GasDown()
+    {
+        gasPressed = true;
+
+        if (timer != null)
+            timer.StartTimer();
+
+        if (engineSound != null)
+        {
+            engineSound.StartEngine();
+            engineSound.SetAccelerating(true);
         }
+    }
+
+    public void GasUp()
+    {
+        gasPressed = false;
+
+        if (engineSound != null)
+            engineSound.SetAccelerating(false);
+    }
+
+    public void BrakeDown()
+    {
+        brakePressed = true;
+
+        if (engineSound != null)
+            engineSound.SetAccelerating(false);
+    }
+
+    public void BrakeUp()
+    {
+        brakePressed = false;
+    }
+
+    // dipakai PauseMenu
+    public bool IsAccelerating()
+    {
+        if (gasPressed) return true;
+        if (Input.GetKey(KeyCode.W)) return true;
+        return false;
     }
 }
